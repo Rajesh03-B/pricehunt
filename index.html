@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PriceHunt — Multi-Retailer Price Comparison & Deal Finder</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="theme-light">
+  <!-- Top Navigation Bar -->
+  <header class="navbar">
+    <div class="nav-container">
+      <div class="brand-logo" id="logoBtn">
+        <div class="logo-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
+            <line x1="7" y1="7" x2="7.01" y2="7"></line>
+          </svg>
+        </div>
+        <div class="logo-text">
+          <span class="logo-title">Price<span class="highlight">Hunt</span></span>
+          <span class="logo-tag">Smart Price Finder</span>
+        </div>
+      </div>
+
+      <div class="nav-actions">
+        <!-- Currency Selector -->
+        <div class="currency-selector-wrap">
+          <label for="currencySelect" class="sr-only">Currency</label>
+          <div class="currency-select-styled">
+            <span class="curr-icon">💱</span>
+            <select id="currencySelect" aria-label="Select Currency">
+              <option value="INR" selected>🇮🇳 INR (₹)</option>
+              <option value="USD">🇺🇸 USD ($)</option>
+              <option value="EUR">🇪🇺 EUR (€)</option>
+              <option value="GBP">🇬🇧 GBP (£)</option>
+              <option value="CAD">🇨🇦 CAD (C$)</option>
+              <option value="AED">🇦🇪 AED (د.إ)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Theme Toggle -->
+        <button id="themeToggleBtn" class="icon-btn" title="Toggle Light/Dark Theme" aria-label="Toggle Theme">
+          <span class="sun-icon">☀️</span>
+          <span class="moon-icon">🌙</span>
+        </button>
+
+        <!-- Watchlist Button -->
+        <button id="openWatchlistBtn" class="btn btn-outline nav-watchlist-btn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+          </svg>
+          <span>Watchlist</span>
+          <span class="badge count-badge" id="watchlistCount">0</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section & Live Search -->
+  <section class="hero-section">
+    <div class="hero-container">
+      <div class="hero-badge">
+        <span class="pulse-dot"></span>
+        <span>Scanning 8+ Major Retailers in Real-Time</span>
+      </div>
+      <h1 class="hero-title">
+        Never Overpay. <br />
+        Find the <span class="gradient-text">Lowest Price</span> Across the Web.
+      </h1>
+      <p class="hero-subtitle">
+        Search any product to instantly compare live prices on Amazon, Walmart, Best Buy, eBay, Target, Newegg, B&H, and Flipkart.
+      </p>
+
+      <!-- Search Box Component -->
+      <div class="search-box-wrapper">
+        <div class="search-box">
+          <div class="search-input-group">
+            <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input 
+              type="text" 
+              id="searchInput" 
+              placeholder="Search by product name, brand, or model (e.g., Sony WH-1000XM5, iPhone 15, MacBook Air)..." 
+              autocomplete="off"
+            />
+            <button id="clearSearchBtn" class="clear-btn" title="Clear input" style="display: none;">✕</button>
+          </div>
+          <button id="searchSubmitBtn" class="btn btn-primary search-action-btn">
+            <span>Find Best Price</span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Autocomplete Suggestions Dropdown -->
+        <div id="suggestionsDropdown" class="suggestions-dropdown" style="display: none;"></div>
+      </div>
+
+      <!-- Quick Category Filters -->
+      <div class="category-pills" id="categoryPills">
+        <button class="pill active" data-category="all">All Products</button>
+        <button class="pill" data-category="Audio">🎧 Headphones & Audio</button>
+        <button class="pill" data-category="Laptops">💻 Laptops & Computers</button>
+        <button class="pill" data-category="Smartphones">📱 Smartphones</button>
+        <button class="pill" data-category="Gaming">🎮 Gaming Consoles</button>
+        <button class="pill" data-category="Wearables">⌚ Smartwatches</button>
+        <button class="pill" data-category="TV">📺 Smart TVs</button>
+        <button class="pill" data-category="Cameras">📷 Cameras</button>
+      </div>
+
+      <!-- Live Dollar Currency Converter & Selector -->
+      <div class="dollar-converter-box">
+        <div class="dconv-top">
+          <div class="dconv-title">
+            <span class="dconv-badge">💱 Live Dollar Converter</span>
+            <span class="dconv-rate-tag" id="liveExchangeRateTag">1 USD ($) = ₹83.50 INR</span>
+          </div>
+          <div class="currency-switch-pills" id="currencySwitchPills">
+            <span class="curr-switch-label">Switch Currency:</span>
+            <button class="c-pill active" data-curr="INR">🇮🇳 INR (₹)</button>
+            <button class="c-pill" data-curr="USD">🇺🇸 USD ($)</button>
+            <button class="c-pill" data-curr="EUR">🇪🇺 EUR (€)</button>
+            <button class="c-pill" data-curr="GBP">🇬🇧 GBP (£)</button>
+            <button class="c-pill" data-curr="CAD">🇨🇦 CAD (C$)</button>
+            <button class="c-pill" data-curr="AED">🇦🇪 AED (د.إ)</button>
+          </div>
+        </div>
+        <div class="dconv-calc-row">
+          <div class="dconv-input-group">
+            <span class="dconv-sym">$</span>
+            <input type="number" id="calcDollarInput" value="100" min="1" step="any" placeholder="Enter USD $" />
+            <span class="dconv-label">USD</span>
+          </div>
+          <span class="dconv-arrow">➔</span>
+          <div class="dconv-output-group">
+            <span class="dconv-output-val" id="calcConvertedOutput">₹ 8,350 INR</span>
+            <span class="dconv-sub" id="calcConvertedSub">(Converted at ₹83.50 per dollar)</span>
+          </div>
+          <div class="dconv-presets">
+            <span class="preset-label">Quick Convert:</span>
+            <button class="preset-btn" data-val="10">$10</button>
+            <button class="preset-btn" data-val="50">$50</button>
+            <button class="preset-btn active" data-val="100">$100</button>
+            <button class="preset-btn" data-val="500">$500</button>
+            <button class="preset-btn" data-val="1000">$1,000</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Trust Indicators -->
+      <div class="trust-bar">
+        <div class="trust-item">
+          <span class="trust-check">✓</span> 8+ Retailers Monitored
+        </div>
+        <div class="trust-item">
+          <span class="trust-check">✓</span> 100% Free & Neutral Comparison
+        </div>
+        <div class="trust-item">
+          <span class="trust-check">✓</span> Price Drop Tracking
+        </div>
+        <div class="trust-item">
+          <span class="trust-check">✓</span> Price History Analytics
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Comparison & Results Section -->
+  <main class="main-content">
+    <div class="content-container">
+
+      <!-- Breadcrumbs & Active Query Header -->
+      <div class="results-header-bar" id="resultsHeaderBar">
+        <div class="results-meta">
+          <span id="resultsCount">Featured Deals</span>
+          <span class="separator">•</span>
+          <span id="activeSearchQuery">Showing top value products</span>
+        </div>
+        <div class="results-controls">
+          <div class="control-group">
+            <label for="sortBySelect">Sort by:</label>
+            <select id="sortBySelect">
+              <option value="price-asc">Lowest Price First</option>
+              <option value="savings-desc">Biggest Savings / Discount</option>
+              <option value="rating-desc">Highest Customer Rating</option>
+              <option value="price-desc">Highest Price First</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label for="storeFilterSelect">Store:</label>
+            <select id="storeFilterSelect">
+              <option value="all">All Stores (8)</option>
+              <option value="Amazon.in">Amazon.in (Amazon India)</option>
+              <option value="Flipkart">Flipkart</option>
+              <option value="Croma">Croma</option>
+              <option value="Reliance Digital">Reliance Digital</option>
+              <option value="Vijay Sales">Vijay Sales</option>
+              <option value="Tata CLiQ">Tata CLiQ</option>
+              <option value="Poorvika">Poorvika</option>
+              <option value="Amazon Global">Amazon Global (US)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Focused Detailed Comparison View (When a single product is selected/opened) -->
+      <section id="detailedComparisonView" class="detailed-comparison-section" style="display: none;">
+        <!-- Back to list button -->
+        <button id="backToListBtn" class="back-link-btn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 19"></polyline>
+          </svg>
+          <span>Back to All Products</span>
+        </button>
+
+        <!-- Product Hero Card -->
+        <div class="product-spotlight-card" id="spotlightCard">
+          <div class="product-gallery">
+            <img id="detailProductImage" src="" alt="Product" class="product-main-img" />
+            <span class="condition-badge" id="detailCondition">Brand New</span>
+          </div>
+
+          <div class="product-info-column">
+            <div class="product-meta-row">
+              <span class="category-tag" id="detailCategory">Category</span>
+              <span class="sku-tag" id="detailSku">SKU: PH-8492</span>
+            </div>
+            <h2 class="product-detail-title" id="detailTitle">Product Title</h2>
+            <div class="rating-row">
+              <div class="star-rating" id="detailStars">★★★★★</div>
+              <span class="rating-value" id="detailRating">4.8</span>
+              <span class="reviews-count" id="detailReviews">(1,240 ratings)</span>
+            </div>
+            <p class="product-detail-desc" id="detailDesc">High performance item with best-in-class features.</p>
+
+            <!-- Lowest Price Highlight Banner -->
+            <div class="cheapest-deal-banner" id="cheapestDealBanner">
+              <div class="banner-badge">
+                <span class="trophy-icon">🏆</span>
+                <span>LOWEST PRICE FOUND</span>
+              </div>
+              <div class="banner-content">
+                <div class="deal-prices">
+                  <div class="lowest-price-display">
+                    <span class="currency-symbol" id="detailLowestCurrency">₹</span>
+                    <span class="lowest-price-number" id="detailLowestPrice">0</span>
+                  </div>
+                  <div class="msrp-diff">
+                    <span class="original-msrp" id="detailMsrp">₹0</span>
+                    <span class="savings-tag" id="detailSavingsBadge">Save ₹0 (0%)</span>
+                  </div>
+                </div>
+                <div class="deal-store-info">
+                  <div class="store-callout">Available at <strong id="detailCheapestStoreName">Amazon.in</strong></div>
+                  <div class="shipping-callout" id="detailCheapestShipping">✓ Free Express Shipping included</div>
+                </div>
+              </div>
+
+              <div class="deal-actions">
+                <a href="#" target="_blank" rel="noopener noreferrer" class="btn btn-deal" id="directDealBtn">
+                  <span>Go to <span id="directDealStoreName">Store</span></span>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                    <polyline points="15 3 21 3 21 9"></polyline>
+                    <line x1="10" y1="14" x2="21" y2="3"></line>
+                  </svg>
+                </a>
+                <button class="btn btn-secondary set-alert-btn" id="setAlertFromDetailBtn">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                    <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                  </svg>
+                  <span>Track Price Drop</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Real-Time Retailer Comparison Table / Matrix -->
+        <div class="section-card stores-comparison-matrix">
+          <div class="section-header">
+            <div>
+              <h3 class="section-title">Where to Buy: All Retailers Ranked by Price</h3>
+              <p class="section-subtitle">Real-time prices from 8 online stores, sorted from lowest to highest total cost.</p>
+            </div>
+            <div class="store-filter-mini">
+              <label><input type="checkbox" id="filterFreeShippingOnly"> Free Shipping Only</label>
+            </div>
+          </div>
+
+          <div class="comparison-table-wrapper">
+            <table class="comparison-table" id="storeComparisonTable">
+              <thead>
+                <tr>
+                  <th>Rank & Store</th>
+                  <th>Condition</th>
+                  <th>Delivery & Shipping</th>
+                  <th>Stock Status</th>
+                  <th>Seller Rating</th>
+                  <th>Total Price</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="storeTableBody">
+                <!-- Dynamically injected store rows -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Interactive Price History & Smart Buy Indicator -->
+        <div class="insights-grid">
+          <!-- Price History Chart -->
+          <div class="section-card price-chart-card">
+            <div class="section-header">
+              <div>
+                <h3 class="section-title">90-Day Price History Trend</h3>
+                <p class="section-subtitle">Track how prices have fluctuated across retailers over time.</p>
+              </div>
+              <div class="time-range-toggles">
+                <button class="range-btn active" data-days="30">30D</button>
+                <button class="range-btn" data-days="60">60D</button>
+                <button class="range-btn" data-days="90">90D</button>
+              </div>
+            </div>
+
+            <!-- Pure SVG Interactive Chart Container -->
+            <div class="svg-chart-container" id="chartContainer">
+              <svg id="priceHistorySvg" viewBox="0 0 700 240" preserveAspectRatio="none"></svg>
+              <div id="chartTooltip" class="chart-tooltip" style="display: none;"></div>
+            </div>
+
+            <div class="chart-legend">
+              <div class="legend-item"><span class="legend-dot dot-lowest"></span> Lowest Store Price</div>
+              <div class="legend-item"><span class="legend-dot dot-avg"></span> Market Average</div>
+              <div class="legend-item"><span class="legend-dot dot-highest"></span> Highest Store Price</div>
+            </div>
+          </div>
+
+          <!-- Smart AI Buy Advisor & Price Stats -->
+          <div class="section-card advice-card">
+            <h3 class="section-title">Smart Deal Verdict</h3>
+            
+            <div class="advice-box" id="adviceVerdictBox">
+              <div class="advice-header">
+                <span class="verdict-icon" id="verdictIcon">⚡</span>
+                <div>
+                  <h4 class="verdict-title" id="verdictTitle">Great Time to Buy!</h4>
+                  <p class="verdict-tagline" id="verdictSubtitle">Price is near 90-day historic low</p>
+                </div>
+              </div>
+              <div class="advice-meter-wrapper">
+                <div class="meter-bar">
+                  <div class="meter-fill" id="dealMeterFill" style="width: 88%;"></div>
+                </div>
+                <div class="meter-labels">
+                  <span>Wait</span>
+                  <span>Fair</span>
+                  <span>Hot Deal</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="price-stats-grid">
+              <div class="stat-pill">
+                <span class="stat-label">All-Time Low</span>
+                <span class="stat-val text-success" id="statAllTimeLow">$0.00</span>
+              </div>
+              <div class="stat-pill">
+                <span class="stat-label">Market Average</span>
+                <span class="stat-val" id="statMarketAvg">$0.00</span>
+              </div>
+              <div class="stat-pill">
+                <span class="stat-label">All-Time High</span>
+                <span class="stat-val text-danger" id="statAllTimeHigh">$0.00</span>
+              </div>
+              <div class="stat-pill">
+                <span class="stat-label">Max Spread</span>
+                <span class="stat-val text-primary" id="statPriceSpread">$0.00</span>
+              </div>
+            </div>
+
+            <div class="deal-tip">
+              💡 <strong>Pro Tip:</strong> <span id="dealTipText">Buying at the lowest store saves you significant cash compared to the highest-priced listing.</span>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- Products Grid View (Default & Search Results) -->
+      <section id="productsGridView" class="products-grid-section">
+        <div class="products-grid" id="productsGrid">
+          <!-- Dynamically populated product cards -->
+        </div>
+
+        <!-- Empty State Message -->
+        <div id="noResultsState" class="empty-state" style="display: none;">
+          <div class="empty-icon">🔍</div>
+          <h3>No matching products found</h3>
+          <p>We couldn't find an exact pre-cataloged product, but our AI price comparator can generate a custom comparison for your search!</p>
+          <button id="generateCustomComparisonBtn" class="btn btn-primary mt-3">Compare Prices for this Query</button>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- Watchlist / Price Alert Modal -->
+  <div id="watchlistModal" class="modal-overlay" style="display: none;">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+          </svg>
+          <h3>My Price Watchlist & Alerts</h3>
+        </div>
+        <button id="closeWatchlistBtn" class="close-modal-btn">✕</button>
+      </div>
+
+      <div class="modal-body" id="watchlistModalBody">
+        <div id="emptyWatchlistState" class="empty-watchlist">
+          <p>Your watchlist is empty.</p>
+          <small>Click "Track Price Drop" on any product to get alerts when prices hit your target!</small>
+        </div>
+        <div id="watchlistItemsList" class="watchlist-items-list">
+          <!-- Watchlist cards injected here -->
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-outline" id="clearWatchlistBtn">Clear All</button>
+        <button class="btn btn-primary" id="simulatePriceDropBtn">Simulate Random Price Drop 📉</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Price Drop Alert Setup Modal -->
+  <div id="setAlertModal" class="modal-overlay" style="display: none;">
+    <div class="modal-card modal-sm">
+      <div class="modal-header">
+        <h3>Set Target Price Alert</h3>
+        <button id="closeAlertModalBtn" class="close-modal-btn">✕</button>
+      </div>
+      <div class="modal-body">
+        <p id="alertModalProductTitle" class="font-semibold mb-2">Product Title</p>
+        <p class="text-muted text-sm mb-4">Current best price: <strong id="alertModalCurrentPrice" class="text-success">$0.00</strong></p>
+
+        <div class="form-group">
+          <label for="targetPriceInput">Notify me when price drops below:</label>
+          <div class="input-with-currency">
+            <span class="currency-prefix" id="alertCurrencyPrefix">₹</span>
+            <input type="number" id="targetPriceInput" step="1" min="1" placeholder="Enter target price in ₹" />
+          </div>
+          <small class="form-hint">Suggested target: <button id="suggestTargetBtn" class="link-btn">₹0 (10% off)</button></small>
+        </div>
+
+        <div class="form-group mt-3">
+          <label for="alertEmailInput">Email Notification (optional simulation):</label>
+          <input type="email" id="alertEmailInput" placeholder="your.email@example.com" />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" id="cancelAlertBtn">Cancel</button>
+        <button class="btn btn-primary" id="confirmAlertBtn">Save Price Alert</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <!-- Footer -->
+  <footer class="app-footer">
+    <div class="footer-container">
+      <div class="footer-brand">
+        <div class="brand-logo">
+          <div class="logo-icon mini">🏷️</div>
+          <span class="logo-title">Price<span class="highlight">Hunt</span></span>
+        </div>
+        <p class="footer-desc">
+          Smart price finder comparing multiple retail sources to help you buy products at the absolute lowest available price.
+        </p>
+      </div>
+      <div class="footer-stores">
+        <h4>Supported Retailers</h4>
+        <div class="supported-stores-list">
+          <span>Amazon.in</span>
+          <span>Flipkart</span>
+          <span>Croma</span>
+          <span>Reliance Digital</span>
+          <span>Vijay Sales</span>
+          <span>Tata CLiQ</span>
+          <span>Poorvika</span>
+          <span>Amazon Global</span>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>© 2026 PriceHunt. Built for smart shoppers. Zero affiliate bias, 100% price transparency.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
